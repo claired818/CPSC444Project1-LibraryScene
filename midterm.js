@@ -26,20 +26,24 @@ scene.add(ambientLight);
 const materials = {
     floor: new THREE.MeshStandardMaterial({color: 0x604c39}),
     wall: new THREE.MeshStandardMaterial({color: 0x000077}),
-    bookshelf: new THREE.MeshStandardMaterial({color: 0x937f6b}),
-    bookshelfBacking: new THREE.MeshStandardMaterial({color: 0x402a16})
+    shelf: new THREE.MeshStandardMaterial({color: 0x937f6b}),
+    shelfBacking: new THREE.MeshStandardMaterial({color: 0x402a16}),
 };
 
-const planeGeo = new THREE.BoxGeometry(20, 0.25, 20);
+const geometries = {
+    board: new THREE.BoxGeometry(20, 0.25, 20),
+    shelf: new THREE.BoxGeometry(2, 1, 2),
+    shelfBacking: new THREE.PlaneGeometry(19, 19),
+};
 
 //create the floor of the room
-const floor = new THREE.Mesh(planeGeo, materials.floor);
+const floor = new THREE.Mesh(geometries.board, materials.floor);
 floor.receiveShadow = true;
 scene.add(floor);
 
 //create the wall of the room
 for (let i = 0; i < 3; i++) {
-    const wall = new THREE.Mesh(planeGeo, materials.wall);
+    const wall = new THREE.Mesh(geometries.board, materials.wall);
     wall.position.y = 10.125;
     if (i % 2 == 0){
         wall.rotation.z = Math.PI * 0.5;
@@ -53,11 +57,9 @@ for (let i = 0; i < 3; i++) {
 }
 
 //Bookshelves
-const shelfGeo = new THREE.BoxGeometry(2, 1, 2);
-
 //create the shelf posts
 for (let i = 0; i < 4; i++) {
-    const shelfPost = new THREE.Mesh(shelfGeo, materials.bookshelf);
+    const shelfPost = new THREE.Mesh(geometries.shelf, materials.shelf);
     shelfPost.scale.y = 20;
     shelfPost.position.set(i % 2 == 0 ? 8.75 : -8.75, 10, i < 2 ? 8.95 : -8.75);
     scene.add(shelfPost);
@@ -65,7 +67,7 @@ for (let i = 0; i < 4; i++) {
 
 //create tops and bottoms of shelves
 for (let i = 0; i < 6; i++) {
-    const shelfOuters = new THREE.Mesh(shelfGeo, materials.bookshelf);
+    const shelfOuters = new THREE.Mesh(geometries.shelf, materials.shelf);
     shelfOuters.scale.y = 17;
     shelfOuters.scale.z = 0.25;
     shelfOuters.rotation.x = Math.PI * 0.5;
@@ -80,7 +82,7 @@ for (let i = 0; i < 6; i++) {
 
 //create the middle shelves
 for (let i = 0; i < 9; i++) {
-    const middleShelf = new THREE.Mesh(shelfGeo, materials.bookshelf);
+    const middleShelf = new THREE.Mesh(geometries.shelf, materials.shelf);
     middleShelf.scale.y = 17;
     middleShelf.scale.z = 0.25;
     middleShelf.scale.x = 0.75;
@@ -97,9 +99,8 @@ for (let i = 0; i < 9; i++) {
 }
 
 //create the shelf backings
-const shelfBackingGeo = new THREE.PlaneGeometry(19, 19);
 for (let i = 0; i < 3; i++) {
-    const shelfBacking = new THREE.Mesh(shelfBackingGeo, materials.bookshelfBacking);
+    const shelfBacking = new THREE.Mesh(geometries.shelfBacking, materials.shelfBacking);
     switch (i) {
         case 0:
             shelfBacking.rotation.y = Math.PI * 0.5;

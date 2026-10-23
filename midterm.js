@@ -19,9 +19,9 @@ const controls = new OrbitControls(camera, renderer.domElement);
 const ambientLight = new THREE.AmbientLight(0xffffff);
 scene.add(ambientLight);
 
-// const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-// directionalLight.position.set(0, 100, 100);
-// scene.add(directionalLight);
+const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+directionalLight.position.set(0, 100, 100);
+scene.add(directionalLight);
 
 const materials = {
     floor: new THREE.MeshStandardMaterial({color: 0x604c39}),
@@ -35,7 +35,8 @@ const materials = {
         new THREE.MeshStandardMaterial({color: 0xedb458}),
         new THREE.MeshStandardMaterial({color: 0x3e6f52})
     ],
-    innerBook: new THREE.MeshStandardMaterial({color: 0xffe7ad})
+    innerBook: new THREE.MeshStandardMaterial({color: 0xffe7ad}),
+    desk: new THREE.MeshStandardMaterial({color: 0xefcda8})
 };
 
 const outerBookShape = new THREE.Shape()
@@ -64,7 +65,7 @@ const geometries = {
         new THREE.ExtrudeGeometry(outerBookShape, {depth: 2.25}),
         new THREE.ExtrudeGeometry(outerBookShape, {depth: 2.5}),
         new THREE.ExtrudeGeometry(outerBookShape, {depth: 2.75}),
-        new THREE.ExtrudeGeometry(outerBookShape, {depth: 3})
+        new THREE.ExtrudeGeometry(outerBookShape, {depth: 3}),
     ],
     innerBook: [
         new THREE.ExtrudeGeometry(innerBookShape, {depth: 1.9}),
@@ -72,7 +73,9 @@ const geometries = {
         new THREE.ExtrudeGeometry(innerBookShape, {depth: 2.4}),
         new THREE.ExtrudeGeometry(innerBookShape, {depth: 2.65}),
         new THREE.ExtrudeGeometry(innerBookShape, {depth: 2.9})
-    ]
+    ],
+    deskTop: new THREE.BoxGeometry(8, 0.5, 5),
+    deskPost: new THREE.BoxGeometry(1, 4, 1)
 };
 
 //create the floor of the room
@@ -224,6 +227,17 @@ for (let j = 0; j < 4; j++){
         z -= 0.7;
     }
     y += 4.66;
+}
+
+//Desk
+const deskTop = new THREE.Mesh(geometries.deskTop, materials.desk);
+deskTop.position.set(0, 4, 0);
+scene.add(deskTop);
+
+for (let i = 0; i < 4; i++) {
+    const deskPost = new THREE.Mesh(geometries.deskPost, materials.desk);
+    deskPost.position.set(i % 2 == 0 ? -3 : 3, 2, i >1 ? 1.5 : -1.5);
+    scene.add(deskPost);
 }
 
 window.addEventListener("resize", () => {

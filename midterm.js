@@ -25,15 +25,54 @@ scene.add(ambientLight);
 
 const materials = {
     floor: new THREE.MeshStandardMaterial({color: 0x604c39}),
-    wall: new THREE.MeshStandardMaterial({color: 0x000077}),
+    wall: new THREE.MeshStandardMaterial({color: 0x003300}),
     shelf: new THREE.MeshStandardMaterial({color: 0x937f6b}),
     shelfBacking: new THREE.MeshStandardMaterial({color: 0x402a16}),
+    outerBook: [
+        new THREE.MeshStandardMaterial({color: 0x8c1b62}),
+        new THREE.MeshStandardMaterial({color: 0x8a8e91}),
+        new THREE.MeshStandardMaterial({color: 0x114B5F}),
+        new THREE.MeshStandardMaterial({color: 0xedb458}),
+        new THREE.MeshStandardMaterial({color: 0x3e6f52})
+    ],
+    innerBook: new THREE.MeshStandardMaterial({color: 0xffe7ad})
 };
+
+const outerBookShape = new THREE.Shape()
+    .moveTo(0, 0)
+    .lineTo(0, -1)
+    .absarc(0.25, -1, 0.25, Math.PI, 0)
+    .lineTo(0.5, 0)
+    .lineTo(0.49, 0)
+    .lineTo(0.49, -1)
+    .absarc(0.25, -1, 0.25, 0, Math.PI, true)
+    .lineTo(0.01, 0)
+    .lineTo(0, 0);
+const innerBookShape = new THREE.Shape()
+    .moveTo(0.2, 0)
+    .lineTo(0.2, -0.99)
+    .absarc(0.25, -1, 0.05, Math.PI, 0)
+    .lineTo(0.3, 0)
+    .lineTo(0.2, 0);
 
 const geometries = {
     board: new THREE.BoxGeometry(20, 0.25, 20),
     shelf: new THREE.BoxGeometry(2, 1, 2),
     shelfBacking: new THREE.PlaneGeometry(19, 19),
+    outerBook: [
+        new THREE.ExtrudeGeometry(outerBookShape, {depth: 2}),
+        new THREE.ExtrudeGeometry(outerBookShape, {depth: 2.25}),
+        new THREE.ExtrudeGeometry(outerBookShape, {depth: 2.5}),
+        new THREE.ExtrudeGeometry(outerBookShape, {depth: 2.75}),
+        new THREE.ExtrudeGeometry(outerBookShape, {depth: 3})
+    ],
+    innerBook: [
+        new THREE.ExtrudeGeometry(innerBookShape, {depth: 1.9}),
+        new THREE.ExtrudeGeometry(innerBookShape, {depth: 2.15}),
+        new THREE.ExtrudeGeometry(innerBookShape, {depth: 2.4}),
+        new THREE.ExtrudeGeometry(innerBookShape, {depth: 2.65}),
+        new THREE.ExtrudeGeometry(innerBookShape, {depth: 2.9})
+    ]
 };
 
 //create the floor of the room
@@ -114,6 +153,77 @@ for (let i = 0; i < 3; i++) {
             shelfBacking.position.set(0, 10.4, -9.74);
     }
     scene.add(shelfBacking);
+}
+
+//Books
+//back shelves
+let y = 1.45;
+for (let j = 0; j < 4; j++){
+    let x = -7.54;
+    for (let i = 0; i < 22; i++) {
+        let geoNum = Math.floor(Math.random() * geometries.outerBook.length);
+        
+        const outerBook = new THREE.Mesh(geometries.outerBook[geoNum], materials.outerBook[Math.floor(Math.random() * materials.outerBook.length)]);
+        outerBook.position.set(x, y, -9.7);
+        outerBook.rotation.x = -Math.PI * 0.5;
+        scene.add(outerBook);
+        
+        const innerBook = new THREE.Mesh(geometries.innerBook[geoNum], materials.innerBook);
+        innerBook.position.set(x, y, -9.7);
+        innerBook.rotation.x = -Math.PI * 0.5;
+        scene.add(innerBook);
+        
+        x += 0.7;
+    }
+    y += 4.66;
+}
+
+//left shelves
+y = 1.45;
+for (let j = 0; j < 4; j++){
+    let z = 7.7;
+    for (let i = 0; i < 22; i++) {
+        let geoNum = Math.floor(Math.random() * geometries.outerBook.length);
+        
+        const outerBook = new THREE.Mesh(geometries.outerBook[geoNum], materials.outerBook[Math.floor(Math.random() * materials.outerBook.length)]);
+        outerBook.position.set(-9.7, y, z);
+        outerBook.rotation.z = Math.PI * 0.5;
+        outerBook.rotation.x = -Math.PI * 0.5;
+        scene.add(outerBook);
+        
+        const innerBook = new THREE.Mesh(geometries.innerBook[geoNum], materials.innerBook);
+        innerBook.position.set(-9.7, y, z);
+        innerBook.rotation.z = Math.PI * 0.5;
+        innerBook.rotation.x = -Math.PI * 0.5;
+        scene.add(innerBook);
+        
+        z -= 0.7;
+    }
+    y += 4.66;
+}
+
+//right shelves
+y = 1.45;
+for (let j = 0; j < 4; j++){
+    let z = 7.2;
+    for (let i = 0; i < 22; i++) {
+        let geoNum = Math.floor(Math.random() * geometries.outerBook.length);
+        
+        const outerBook = new THREE.Mesh(geometries.outerBook[geoNum], materials.outerBook[Math.floor(Math.random() * materials.outerBook.length)]);
+        outerBook.position.set(9.7, y, z);
+        outerBook.rotation.z = -Math.PI * 0.5;
+        outerBook.rotation.x = -Math.PI * 0.5;
+        scene.add(outerBook);
+        
+        const innerBook = new THREE.Mesh(geometries.innerBook[geoNum], materials.innerBook);
+        innerBook.position.set(9.7, y, z);
+        innerBook.rotation.z = -Math.PI * 0.5;
+        innerBook.rotation.x = -Math.PI * 0.5;
+        scene.add(innerBook);
+        
+        z -= 0.7;
+    }
+    y += 4.66;
 }
 
 window.addEventListener("resize", () => {

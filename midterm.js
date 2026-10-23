@@ -36,7 +36,8 @@ const materials = {
         new THREE.MeshStandardMaterial({color: 0x3e6f52})
     ],
     innerBook: new THREE.MeshStandardMaterial({color: 0xffe7ad}),
-    deskChair: new THREE.MeshStandardMaterial({color: 0xefcda8})
+    deskChair: new THREE.MeshStandardMaterial({color: 0xefcda8}),
+    candle: new THREE.MeshStandardMaterial({color: 0xdddddd})
 };
 
 const outerBookShape = new THREE.Shape()
@@ -77,7 +78,9 @@ const geometries = {
     ],
     deskTop: new THREE.BoxGeometry(12, 0.75, 6),
     post: new THREE.BoxGeometry(1.25, 6.5, 1.25),
-    chairSeat: new THREE.BoxGeometry(4.5, 0.75, 4.5)
+    chairSeat: new THREE.BoxGeometry(4.5, 0.75, 4.5),
+    candleBottom: new THREE.CylinderGeometry(0.2, 0.2, 1.5),
+    candleTop: new THREE.CylinderGeometry(0.15, 0.2, 0.1)
 };
 
 //create the floor of the room
@@ -272,6 +275,29 @@ window.addEventListener("resize", () => {
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
 });
+
+//Candles
+// x between -11 and 11, z between -11 and 13.5, y between  14 and 17.5, gap between 0.75 and 2
+let candles = [];
+let z = Math.random() * -2 - 11;
+while (z <= 11.5) {
+    let x = Math.random() * 2 - 11;
+    while (x <= Math.random() * -2 + 11) {
+        const currentZ = Math.random() * 2 + z;
+        const currentY = Math.random() * 3.5 + 14;
+
+        const candleBottom = new THREE.Mesh(geometries.candleBottom, materials.candle);
+        candleBottom.position.set(x, currentY, currentZ);
+        scene.add(candleBottom);
+
+        const candleTop = new THREE.Mesh(geometries.candleTop, materials.candle);
+        candleTop.position.set(x, currentY + 0.8, currentZ);
+        scene.add(candleTop);
+
+        x += Math.random() * 1.25 + 0.75;
+    }
+    z += 2.1;
+}
 
 function animate() {
     requestAnimationFrame(animate);

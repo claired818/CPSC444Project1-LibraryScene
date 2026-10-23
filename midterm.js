@@ -36,7 +36,7 @@ const materials = {
         new THREE.MeshStandardMaterial({color: 0x3e6f52})
     ],
     innerBook: new THREE.MeshStandardMaterial({color: 0xffe7ad}),
-    desk: new THREE.MeshStandardMaterial({color: 0xefcda8})
+    deskChair: new THREE.MeshStandardMaterial({color: 0xefcda8})
 };
 
 const outerBookShape = new THREE.Shape()
@@ -57,9 +57,10 @@ const innerBookShape = new THREE.Shape()
     .lineTo(0.2, 0);
 
 const geometries = {
-    board: new THREE.BoxGeometry(20, 0.25, 20),
+    wall: new THREE.BoxGeometry(20, 0.25, 30),
+    floor: new THREE.BoxGeometry(30, 0.25, 30),
     shelf: new THREE.BoxGeometry(2, 1, 2),
-    shelfBacking: new THREE.PlaneGeometry(19, 19),
+    shelfBacking: new THREE.PlaneGeometry(29, 19),
     outerBook: [
         new THREE.ExtrudeGeometry(outerBookShape, {depth: 2}),
         new THREE.ExtrudeGeometry(outerBookShape, {depth: 2.25}),
@@ -74,25 +75,27 @@ const geometries = {
         new THREE.ExtrudeGeometry(innerBookShape, {depth: 2.65}),
         new THREE.ExtrudeGeometry(innerBookShape, {depth: 2.9})
     ],
-    deskTop: new THREE.BoxGeometry(8, 0.5, 5),
-    deskPost: new THREE.BoxGeometry(1, 4, 1)
+    deskTop: new THREE.BoxGeometry(12, 0.75, 6),
+    post: new THREE.BoxGeometry(1.25, 6.5, 1.25),
+    chairSeat: new THREE.BoxGeometry(4.5, 0.75, 4.5)
 };
 
 //create the floor of the room
-const floor = new THREE.Mesh(geometries.board, materials.floor);
+const floor = new THREE.Mesh(geometries.floor, materials.floor);
 floor.receiveShadow = true;
 scene.add(floor);
 
 //create the wall of the room
 for (let i = 0; i < 3; i++) {
-    const wall = new THREE.Mesh(geometries.board, materials.wall);
+    const wall = new THREE.Mesh(geometries.wall, materials.wall);
     wall.position.y = 10.125;
     if (i % 2 == 0){
         wall.rotation.z = Math.PI * 0.5;
-        wall.position.x = i == 0 ? 9.875 : -9.875
+        wall.position.x = i == 0 ? 14.875 : -14.875
     } else {
         wall.rotation.x = Math.PI * 0.5;
-        wall.position.z = -9.875;
+        wall.rotation.y = Math.PI * 0.5;
+        wall.position.z = -14.875;
     }
     wall.receiveShadow = true;
     scene.add(wall);
@@ -103,21 +106,21 @@ for (let i = 0; i < 3; i++) {
 for (let i = 0; i < 4; i++) {
     const shelfPost = new THREE.Mesh(geometries.shelf, materials.shelf);
     shelfPost.scale.y = 20;
-    shelfPost.position.set(i % 2 == 0 ? 8.75 : -8.75, 10, i < 2 ? 8.95 : -8.75);
+    shelfPost.position.set(i % 2 == 0 ? 13.75 : -13.75, 10, i < 2 ? 13.95 : -13.75);
     scene.add(shelfPost);
 }
 
 //create tops and bottoms of shelves
 for (let i = 0; i < 6; i++) {
     const shelfOuters = new THREE.Mesh(geometries.shelf, materials.shelf);
-    shelfOuters.scale.y = 17;
+    shelfOuters.scale.y = 27;
     shelfOuters.scale.z = 0.25;
     shelfOuters.rotation.x = Math.PI * 0.5;
     shelfOuters.rotation.z = i > 3 ? Math.PI * 0.5 : 0;
     if (i < 4) {
-        shelfOuters.position.set(i % 2 == 0 ? 8.75 : -8.75, i < 2 ? 1 : 19.75, 0);
+        shelfOuters.position.set(i % 2 == 0 ? 13.75 : -13.75, i < 2 ? 1 : 19.75, 0);
     } else {
-        shelfOuters.position.set(0, i % 2 == 0 ? 1 : 19.75, -8.75);
+        shelfOuters.position.set(0, i % 2 == 0 ? 1 : 19.75, -13.75);
     }
     scene.add(shelfOuters);
 }
@@ -125,17 +128,17 @@ for (let i = 0; i < 6; i++) {
 //create the middle shelves
 for (let i = 0; i < 9; i++) {
     const middleShelf = new THREE.Mesh(geometries.shelf, materials.shelf);
-    middleShelf.scale.y = 17;
+    middleShelf.scale.y = 27;
     middleShelf.scale.z = 0.25;
     middleShelf.scale.x = 0.75;
     middleShelf.rotation.x = Math.PI * 0.5;
     if (i < 3) {
-        middleShelf.position.set(8.95, (4.7 * (i + 1)) + 1, 0);
+        middleShelf.position.set(13.95, (4.7 * (i + 1)) + 1, 0);
     } else if (i < 6) {
-        middleShelf.position.set(-8.95, (4.7 * ((i - 3) + 1)) + 1, 0);
+        middleShelf.position.set(-13.95, (4.7 * ((i - 3) + 1)) + 1, 0);
     } else {
         middleShelf.rotation.z = Math.PI * 0.5;
-        middleShelf.position.set(0, (4.7 * ((i - 6) + 1)) + 1, -8.95);
+        middleShelf.position.set(0, (4.7 * ((i - 6) + 1)) + 1, -13.95);
     }
     scene.add(middleShelf);
 }
@@ -146,14 +149,14 @@ for (let i = 0; i < 3; i++) {
     switch (i) {
         case 0:
             shelfBacking.rotation.y = Math.PI * 0.5;
-            shelfBacking.position.set(-9.74, 10.4, 0);
+            shelfBacking.position.set(-14.74, 10.4, 0);
             break;
         case 1:
             shelfBacking.rotation.y = -Math.PI * 0.5;
-            shelfBacking.position.set(9.74, 10.4, 0);
+            shelfBacking.position.set(14.74, 10.4, 0);
             break;
         case 2:
-            shelfBacking.position.set(0, 10.4, -9.74);
+            shelfBacking.position.set(0, 10.4, -14.74);
     }
     scene.add(shelfBacking);
 }
@@ -162,17 +165,17 @@ for (let i = 0; i < 3; i++) {
 //back shelves
 let y = 1.45;
 for (let j = 0; j < 4; j++){
-    let x = -7.54;
-    for (let i = 0; i < 22; i++) {
+    let x = -12.52;
+    for (let i = 0; i < 36; i++) {
         let geoNum = Math.floor(Math.random() * geometries.outerBook.length);
         
         const outerBook = new THREE.Mesh(geometries.outerBook[geoNum], materials.outerBook[Math.floor(Math.random() * materials.outerBook.length)]);
-        outerBook.position.set(x, y, -9.7);
+        outerBook.position.set(x, y, -14.7);
         outerBook.rotation.x = -Math.PI * 0.5;
         scene.add(outerBook);
         
         const innerBook = new THREE.Mesh(geometries.innerBook[geoNum], materials.innerBook);
-        innerBook.position.set(x, y, -9.7);
+        innerBook.position.set(x, y, -14.7);
         innerBook.rotation.x = -Math.PI * 0.5;
         scene.add(innerBook);
         
@@ -184,18 +187,18 @@ for (let j = 0; j < 4; j++){
 //left shelves
 y = 1.45;
 for (let j = 0; j < 4; j++){
-    let z = 7.7;
-    for (let i = 0; i < 22; i++) {
+    let z = 12.6;
+    for (let i = 0; i < 36; i++) {
         let geoNum = Math.floor(Math.random() * geometries.outerBook.length);
         
         const outerBook = new THREE.Mesh(geometries.outerBook[geoNum], materials.outerBook[Math.floor(Math.random() * materials.outerBook.length)]);
-        outerBook.position.set(-9.7, y, z);
+        outerBook.position.set(-14.7, y, z);
         outerBook.rotation.z = Math.PI * 0.5;
         outerBook.rotation.x = -Math.PI * 0.5;
         scene.add(outerBook);
         
         const innerBook = new THREE.Mesh(geometries.innerBook[geoNum], materials.innerBook);
-        innerBook.position.set(-9.7, y, z);
+        innerBook.position.set(-14.7, y, z);
         innerBook.rotation.z = Math.PI * 0.5;
         innerBook.rotation.x = -Math.PI * 0.5;
         scene.add(innerBook);
@@ -208,18 +211,18 @@ for (let j = 0; j < 4; j++){
 //right shelves
 y = 1.45;
 for (let j = 0; j < 4; j++){
-    let z = 7.2;
-    for (let i = 0; i < 22; i++) {
+    let z = 12.1;
+    for (let i = 0; i < 36; i++) {
         let geoNum = Math.floor(Math.random() * geometries.outerBook.length);
         
         const outerBook = new THREE.Mesh(geometries.outerBook[geoNum], materials.outerBook[Math.floor(Math.random() * materials.outerBook.length)]);
-        outerBook.position.set(9.7, y, z);
+        outerBook.position.set(14.7, y, z);
         outerBook.rotation.z = -Math.PI * 0.5;
         outerBook.rotation.x = -Math.PI * 0.5;
         scene.add(outerBook);
         
         const innerBook = new THREE.Mesh(geometries.innerBook[geoNum], materials.innerBook);
-        innerBook.position.set(9.7, y, z);
+        innerBook.position.set(14.7, y, z);
         innerBook.rotation.z = -Math.PI * 0.5;
         innerBook.rotation.x = -Math.PI * 0.5;
         scene.add(innerBook);
@@ -230,14 +233,38 @@ for (let j = 0; j < 4; j++){
 }
 
 //Desk
-const deskTop = new THREE.Mesh(geometries.deskTop, materials.desk);
-deskTop.position.set(0, 4, 0);
+const deskTop = new THREE.Mesh(geometries.deskTop, materials.deskChair);
+deskTop.position.set(0, 6.5, 0);
 scene.add(deskTop);
 
 for (let i = 0; i < 4; i++) {
-    const deskPost = new THREE.Mesh(geometries.deskPost, materials.desk);
-    deskPost.position.set(i % 2 == 0 ? -3 : 3, 2, i >1 ? 1.5 : -1.5);
+    const deskPost = new THREE.Mesh(geometries.post, materials.deskChair);
+    deskPost.position.set(i % 2 == 0 ? -4.6 : 4.6, 3.25, i > 1 ? 1.6 : -1.6);
     scene.add(deskPost);
+}
+
+//Chair
+const chairSeat = new THREE.Mesh(geometries.chairSeat, materials.deskChair);
+chairSeat.position.set(0, 4, -3);
+scene.add(chairSeat);
+
+for (let i = 0; i < 4; i++) {
+    const chairPost = new THREE.Mesh(geometries.post, materials.deskChair);
+    chairPost.scale.set(0.7, 0.6, 0.7);
+    chairPost.position.set(i % 2 == 0 ? -1.81 : 1.81, 2, i > 1 ? -1.19 : -4.81);
+    scene.add(chairPost);
+}
+
+for (let i = 0; i < 4; i++) {
+    const chairBack = new THREE.Mesh(geometries.post, materials.deskChair);
+    chairBack.scale.set(0.6, 0.69, 0.6);
+    if (i < 2) {
+        chairBack.position.set(i % 2 == 0 ? -1.87 : 1.87, 6.6, -4.87);
+    } else {
+        chairBack.rotation.z = Math.PI * 0.5;
+        chairBack.position.set(0, i > 2 ? 6.5 : 8, -4.87);
+    }
+    scene.add(chairBack);
 }
 
 window.addEventListener("resize", () => {

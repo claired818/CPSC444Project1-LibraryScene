@@ -277,14 +277,26 @@ window.addEventListener("resize", () => {
 });
 
 //Candles
-// x between -11 and 11, z between -11 and 13.5, y between  14 and 17.5, gap between 0.75 and 2
+let xMin = -11;
+let xMax = 11;
+
+let zMin = -11;
+let zMax = 13.5;
+
+let yMin = 14;
+let yMax = 17.5;
+
+let gapMin = 0.75;
+let gapMax = 2;
+let gapMid = (gapMax + gapMin) / 2;
+
 let candles = [];
-let z = Math.random() * -2 - 11;
-while (z <= 11.5) {
-    let x = Math.random() * 2 - 11;
-    while (x <= Math.random() * -2 + 11) {
-        const currentZ = Math.random() * 2 + z;
-        const currentY = Math.random() * 3.5 + 14;
+let z = Math.random() * ((zMin + gapMid) - zMin) + zMin;
+while (z <= zMax - gapMax) {
+    let x = Math.random() * ((xMin + gapMid) - xMin) + xMin;
+    while (x <= Math.random() * (xMax - (xMax - gapMid)) + (xMax - gapMid)) {
+        const currentZ = Math.random() * gapMax + z;
+        const currentY = Math.random() * (yMax - yMin) + yMin;
 
         const candleBottom = new THREE.Mesh(geometries.candleBottom, materials.candle);
         candleBottom.position.set(x, currentY, currentZ);
@@ -294,14 +306,33 @@ while (z <= 11.5) {
         candleTop.position.set(x, currentY + 0.8, currentZ);
         scene.add(candleTop);
 
-        x += Math.random() * 1.25 + 0.75;
+        candles.push({
+            bottom: candleBottom,
+            top: candleTop,
+            phase: Math.asin((currentY - 15.75) / 1.75)
+        });
+
+        x += Math.random() * (gapMax - gapMin) + gapMin;
     }
     z += 2.1;
 }
 
+const clock = new THREE.Clock();
+
+const speedMax = 2;
+const speedMin = 0.5;
+
 function animate() {
     requestAnimationFrame(animate);
-    
+
+    const time = clock.getDelta();
+    candles.forEach((candle) => {
+        let speed = Math.random() * (speedMax - speedMin) + speedMin;
+        candle.phase += time * speed;
+        candle.bottom.position.y = Math.sin(candle.phase) * 1.75 + 15.75;
+        candle.top.position.y = candle.bottom.position.y + 0.8;
+    });
+
     controls.update();
 
     renderer.render(scene, camera);

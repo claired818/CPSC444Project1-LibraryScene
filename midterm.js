@@ -16,7 +16,7 @@ document.body.appendChild(renderer.domElement);
 
 const controls = new OrbitControls(camera, renderer.domElement);
 
-const ambientLight = new THREE.AmbientLight(0xffffff);
+const ambientLight = new THREE.AmbientLight(0xffffff, 1);
 scene.add(ambientLight);
 
 const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
@@ -24,23 +24,26 @@ directionalLight.position.set(0, 20, 20);
 scene.add(directionalLight);
 
 const materials = {
-    floor: new THREE.MeshPhongMaterial({color: 0x604c39, reflectivity: 1, shininess: 100}),
-    wall: new THREE.MeshStandardMaterial({color: 0x003300}),
-    shelf: new THREE.MeshStandardMaterial({color: 0x937f6b}),
-    shelfBacking: new THREE.MeshStandardMaterial({color: 0x402a16}),
+    floor: new THREE.MeshPhongMaterial({color: 0x604c39, shininess: 400}),
+    wall: new THREE.MeshLambertMaterial({color: 0x003300}),
+    shelf: new THREE.MeshPhongMaterial({color: 0x937f6b, shininess: 200}),
+    shelfBacking: new THREE.MeshLambertMaterial({color: 0x402a16}),
     outerBook: [
-        new THREE.MeshStandardMaterial({color: 0x8c1b62}),
-        new THREE.MeshStandardMaterial({color: 0x8a8e91}),
-        new THREE.MeshStandardMaterial({color: 0x114B5F}),
-        new THREE.MeshStandardMaterial({color: 0xedb458}),
-        new THREE.MeshStandardMaterial({color: 0x3e6f52})
+        new THREE.MeshStandardMaterial({color: 0x8c1b62, metalness: 0.5}),
+        new THREE.MeshStandardMaterial({color: 0x8a8e91, metalness: 0.5}),
+        new THREE.MeshStandardMaterial({color: 0x114B5F, metalness: 0.5}),
+        new THREE.MeshStandardMaterial({color: 0xedb458, metalness: 0.5}),
+        new THREE.MeshStandardMaterial({color: 0x3e6f52, metalness: 0.5})
     ],
-    innerBook: new THREE.MeshStandardMaterial({color: 0xffe7ad}),
-    deskChair: new THREE.MeshStandardMaterial({color: 0xefcda8}),
-    candle: new THREE.MeshStandardMaterial({color: 0xefddcc}),
-    wand: new THREE.MeshStandardMaterial({color: 0x573412}),
-    potionBottle: new THREE.MeshStandardMaterial({color: 0xaaddff})
+    innerBook: new THREE.MeshLambertMaterial({color: 0xffe7ad}),
+    deskChair: new THREE.MeshPhongMaterial({color: 0xefcda8, shininess: 300}),
+    candle: new THREE.MeshStandardMaterial({color: 0xefddcc, roughness: 0.5, metalness: 0}),
+    wand: new THREE.MeshPhongMaterial({color: 0x573412, shininess: 400}),
+    potionBottle: new THREE.MeshPhysicalMaterial({color: 0x88ddff, opacity: 0.65, roughness: 0.5, metalness: 0.5, clearcoat: 0.5, transmission: 0.5}),
+    potion: new THREE.MeshPhysicalMaterial({color: 0x33ff55, roughness: 0.4, metalness: 0.5, ior: 3, reflectivity: 1, iridescence: 1})
 };
+
+materials.potionBottle.transparent = true;
 
 const shapes = {
     outerBook: new THREE.Shape()
@@ -108,7 +111,8 @@ const geometries = {
     wand: new THREE.ConeGeometry(0.125, 3),
     potionBottleBottom: new THREE.SphereGeometry(0.75),
     potionBottleNeck: new THREE.CylinderGeometry(0.25, 0.25, 0.7),
-    potionBottleTop: new THREE.ExtrudeGeometry(shapes.potionBottleTop, {depth: 0.05})
+    potionBottleTop: new THREE.ExtrudeGeometry(shapes.potionBottleTop, {depth: 0.05}),
+    potion: new THREE.SphereGeometry(0.5)
 };
 
 //create the floor of the room
@@ -464,6 +468,10 @@ potionBottleTop.castShadow = true;
 potionBottleTop.receiveShadow = true;
 
 scene.add(potionBottleTop);
+
+const potion = new THREE.Mesh(geometries.potion, materials.potion);
+potion.position.set(-5, 7.4, 1.95);
+scene.add(potion);
 
 const clock = new THREE.Clock();
 

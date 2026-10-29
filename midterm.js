@@ -37,7 +37,8 @@ const materials = {
     ],
     innerBook: new THREE.MeshStandardMaterial({color: 0xffe7ad}),
     deskChair: new THREE.MeshStandardMaterial({color: 0xefcda8}),
-    candle: new THREE.MeshStandardMaterial({color: 0xefddcc})
+    candle: new THREE.MeshStandardMaterial({color: 0xefddcc}),
+    wand: new THREE.MeshStandardMaterial({color: 0x573412})
 };
 
 const shapes = {
@@ -100,7 +101,7 @@ const geometries = {
     chairSeat: new THREE.BoxGeometry(4.5, 0.75, 4.5),
     candleBottom: new THREE.CylinderGeometry(0.2, 0.2, 1.5),
     candleTop: new THREE.CylinderGeometry(0.15, 0.2, 0.1),
-    wand: new THREE.ConeGeometry(0.2, 5)
+    wand: new THREE.ConeGeometry(0.125, 3)
 };
 
 //create the floor of the room
@@ -339,6 +340,12 @@ while (z <= zMax - gapMax) {
     }
     z += 2.1;
 }
+
+//Wand
+const wand = new THREE.Mesh(geometries.wand, materials.wand);
+wand.position.set(-2.5, 7, -1);
+wand.rotation.x = Math.PI * 0.5;
+scene.add(wand);
 
 window.addEventListener("resize", () => {
     camera.aspect = window.innerWidth / window.innerHeight;

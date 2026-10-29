@@ -37,25 +37,42 @@ const materials = {
     ],
     innerBook: new THREE.MeshStandardMaterial({color: 0xffe7ad}),
     deskChair: new THREE.MeshStandardMaterial({color: 0xefcda8}),
-    candle: new THREE.MeshStandardMaterial({color: 0xdddddd})
+    candle: new THREE.MeshStandardMaterial({color: 0xefddcc})
 };
 
-const outerBookShape = new THREE.Shape()
-    .moveTo(0, 0)
-    .lineTo(0, -1)
-    .absarc(0.25, -1, 0.25, Math.PI, 0)
-    .lineTo(0.5, 0)
-    .lineTo(0.49, 0)
-    .lineTo(0.49, -1)
-    .absarc(0.25, -1, 0.25, 0, Math.PI, true)
-    .lineTo(0.01, 0)
-    .lineTo(0, 0);
-const innerBookShape = new THREE.Shape()
-    .moveTo(0.2, 0)
-    .lineTo(0.2, -0.99)
-    .absarc(0.25, -1, 0.05, Math.PI, 0)
-    .lineTo(0.3, 0)
-    .lineTo(0.2, 0);
+const shapes = {
+    outerBook: new THREE.Shape()
+        .moveTo(0, 0)
+        .lineTo(0, -1)
+        .absarc(0.25, -1, 0.25, Math.PI, 0)
+        .lineTo(0.5, 0)
+        .lineTo(0.49, 0)
+        .lineTo(0.49, -1)
+        .absarc(0.25, -1, 0.25, 0, Math.PI, true)
+        .lineTo(0.01, 0)
+        .lineTo(0, 0)
+    ,
+    innerBook: new THREE.Shape()
+        .moveTo(0.2, 0)
+        .lineTo(0.2, -0.99)
+        .absarc(0.25, -1, 0.05, Math.PI, 0)
+        .lineTo(0.3, 0)
+        .lineTo(0.2, 0)
+    ,
+    openBookOuter: new THREE.Shape()
+        .moveTo(0, 0)
+        .lineTo(4, 0)
+        .lineTo(4, 0.1)
+        .lineTo(0, 0.1)
+        .lineTo(0, 0)
+    ,
+    openBookInner: new THREE.Shape()
+        .moveTo(0, 0)
+        .lineTo(3.5, 0)
+        .absarc(2.625, -0.5, 0.875, Math.PI * 0.15, Math.PI * 0.85)
+        .absarc(0.875, -0.5, 0.875, Math.PI * 0.15, Math.PI * 0.85)
+        .lineTo(0,0)
+};
 
 const geometries = {
     wall: new THREE.BoxGeometry(20, 0.25, 30),
@@ -63,24 +80,27 @@ const geometries = {
     shelf: new THREE.BoxGeometry(2, 1, 2),
     shelfBacking: new THREE.PlaneGeometry(29, 19),
     outerBook: [
-        new THREE.ExtrudeGeometry(outerBookShape, {depth: 2}),
-        new THREE.ExtrudeGeometry(outerBookShape, {depth: 2.25}),
-        new THREE.ExtrudeGeometry(outerBookShape, {depth: 2.5}),
-        new THREE.ExtrudeGeometry(outerBookShape, {depth: 2.75}),
-        new THREE.ExtrudeGeometry(outerBookShape, {depth: 3}),
+        new THREE.ExtrudeGeometry(shapes.outerBook, {depth: 2}),
+        new THREE.ExtrudeGeometry(shapes.outerBook, {depth: 2.25}),
+        new THREE.ExtrudeGeometry(shapes.outerBook, {depth: 2.5}),
+        new THREE.ExtrudeGeometry(shapes.outerBook, {depth: 2.75}),
+        new THREE.ExtrudeGeometry(shapes.outerBook, {depth: 3}),
     ],
     innerBook: [
-        new THREE.ExtrudeGeometry(innerBookShape, {depth: 1.9}),
-        new THREE.ExtrudeGeometry(innerBookShape, {depth: 2.15}),
-        new THREE.ExtrudeGeometry(innerBookShape, {depth: 2.4}),
-        new THREE.ExtrudeGeometry(innerBookShape, {depth: 2.65}),
-        new THREE.ExtrudeGeometry(innerBookShape, {depth: 2.9})
+        new THREE.ExtrudeGeometry(shapes.innerBook, {depth: 1.9}),
+        new THREE.ExtrudeGeometry(shapes.innerBook, {depth: 2.15}),
+        new THREE.ExtrudeGeometry(shapes.innerBook, {depth: 2.4}),
+        new THREE.ExtrudeGeometry(shapes.innerBook, {depth: 2.65}),
+        new THREE.ExtrudeGeometry(shapes.innerBook, {depth: 2.9})
     ],
+    openBookOuter: new THREE.ExtrudeGeometry(shapes.openBookOuter, {depth: 3}),
+    openBookInner: new THREE.ExtrudeGeometry(shapes.openBookInner, {depth: 2.5}),
     deskTop: new THREE.BoxGeometry(12, 0.75, 6),
     post: new THREE.BoxGeometry(1.25, 6.5, 1.25),
     chairSeat: new THREE.BoxGeometry(4.5, 0.75, 4.5),
     candleBottom: new THREE.CylinderGeometry(0.2, 0.2, 1.5),
-    candleTop: new THREE.CylinderGeometry(0.15, 0.2, 0.1)
+    candleTop: new THREE.CylinderGeometry(0.15, 0.2, 0.1),
+    wand: new THREE.ConeGeometry(0.2, 5)
 };
 
 //create the floor of the room
@@ -270,11 +290,14 @@ for (let i = 0; i < 4; i++) {
     scene.add(chairBack);
 }
 
-window.addEventListener("resize", () => {
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth, window.innerHeight);
-});
+//Open Book
+const openBookOuter = new THREE.Mesh(geometries.openBookOuter, materials.outerBook[Math.floor(Math.random() * materials.outerBook.length)]);
+openBookOuter.position.set(-2, 6.9, -2.5);
+scene.add(openBookOuter);
+
+const openBookInner = new THREE.Mesh(geometries.openBookInner, materials.innerBook);
+openBookInner.position.set(-1.75, 7.15, -2.25);
+scene.add(openBookInner);
 
 //Candles
 let xMin = -11;
@@ -316,6 +339,12 @@ while (z <= zMax - gapMax) {
     }
     z += 2.1;
 }
+
+window.addEventListener("resize", () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+});
 
 const clock = new THREE.Clock();
 

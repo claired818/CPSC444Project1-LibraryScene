@@ -19,12 +19,16 @@ const controls = new OrbitControls(camera, renderer.domElement);
 const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
 scene.add(ambientLight);
 
-const spotLight = new THREE.SpotLight(0xeeeedd, 200);
-spotLight.position.set(0, 5, 21);
-spotLight.target.position.set(0, 10, -2.5);
+const spotLight = new THREE.SpotLight(0xcc00ff, 300);
+spotLight.position.set(0, 27, -2.5);
+spotLight.target.position.set(0, 7, -2.5);
 scene.add(spotLight);
 // const spotLightHelper = new THREE.SpotLightHelper(spotLight);
 // scene.add(spotLightHelper);
+
+let animation = true;
+let light = true;
+let potionExists = true;
 
 const materials = {
     floor: new THREE.MeshPhongMaterial({color: 0x604c39, shininess: 400}),
@@ -43,7 +47,7 @@ const materials = {
     candle: new THREE.MeshStandardMaterial({color: 0xefddcc, roughness: 0.5, metalness: 0}),
     wand: new THREE.MeshPhongMaterial({color: 0x573412, shininess: 400}),
     potionBottle: new THREE.MeshPhysicalMaterial({color: 0x88ddff, opacity: 0.65, roughness: 0.5, metalness: 0.5, clearcoat: 0.5, transmission: 0.5}),
-    potion: new THREE.MeshPhysicalMaterial({color: 0x33ff55, roughness: 0.4, metalness: 0.5, ior: 3, reflectivity: 1, iridescence: 1})
+    potion: new THREE.MeshPhysicalMaterial({color: 0x153377, roughness: 0.4, metalness: 0.5, ior: 3, reflectivity: 1, iridescence: 1, emissive: 0x264488})
 };
 
 materials.potionBottle.transparent = true;
@@ -381,7 +385,7 @@ openBookInner.receiveShadow = true;
 
 scene.add(openBookInner);
 
-const openBookLight = new THREE.PointLight(0xaa33ff, 100, 4);
+const openBookLight = new THREE.PointLight(0x3333ff, 100, 4);
 openBookLight.position.set(0, 9, -1);
 scene.add(openBookLight);
 // const bookLightHelper = new THREE.PointLightHelper(openBookLight);
@@ -436,6 +440,7 @@ while (z <= zMax - gapMax) {
             bottom: candleBottom,
             top: candleTop,
             wick: wick,
+            helper: wickHelper,
             phase: Math.asin((currentY - 15.75) / 1.75)
         });
 
@@ -459,12 +464,6 @@ wandLight.position.set(-2.5, 7, 0.5);
 scene.add(wandLight);
 // const wandlighthelper = new THREE.PointLightHelper(wandLight);
 // scene.add(wandlighthelper);
-
-window.addEventListener("resize", () => {
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth, window.innerHeight);
-});
 
 //Potion Bottle
 const potionBottleBottom = new THREE.Mesh(geometries.potionBottleBottom, materials.potionBottle);
@@ -496,29 +495,68 @@ const potion = new THREE.Mesh(geometries.potion, materials.potion);
 potion.position.set(-5, 7.4, 1.95);
 scene.add(potion);
 
+const potionLight = new THREE.PointLight(0x153377, 200);
+potionLight.position.set(-5, 7.95, 1.95);
+scene.add(potionLight);
+// const potionhelper = new THREE.PointLightHelper(potionLight);
+// scene.add(potionhelper);
+
 const clock = new THREE.Clock();
 
 const speedMax = 2;
 const speedMin = 0.5;
 
+window.addEventListener("keydown", (e) => {
+    switch (e.key.toLowerCase()) {
+        case "p": 
+            animation = !animation;
+            break;
+        case "d": 
+            potionExists = !potionExists;
+            materials.potion.transparent = !materials.potion.transparent;
+            potionLight.intensity = (potionExists && light) ? 200 : 0;
+            break;
+        case "o":
+            light = !light;
+            openBookLight.intensity = openBookLight.intensity == 0 ? 100 : 0;
+            wandLight.intensity = wandLight.intensity == 0 ? Math.sin(Date.now() * 0.0025) * 10 + 15 : 0;
+            candles.forEach((candle) => {
+                candle.wick.intensity = candle.wick.intensity == 0 ? 2.5 : 0;
+                candle.helper.visible = !candle.helper.visible;
+            });
+            potionLight.intensity = (potionLight.intensity == 0 && potionExists) ? 200 : 0;
+    }
+});
+
+
+window.addEventListener("resize", () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+});
+
 function animate() {
     requestAnimationFrame(animate);
 
     const time = clock.getDelta();
-    candles.forEach((candle) => {
-        let speed = Math.random() * (speedMax - speedMin) + speedMin;
-        candle.phase += time * speed;
-        candle.bottom.position.y = Math.sin(candle.phase) * 1.75 + 15.75;
-        candle.top.position.y = candle.bottom.position.y + 0.8;
-        candle.wick.position.y = candle.bottom.position.y + 1.25;
-    });
+    
+    if (animation) {
+        candles.forEach((candle) => {
+            let speed = Math.random() * (speedMax - speedMin) + speedMin;
+            candle.phase += time * speed;
+            candle.bottom.position.y = Math.sin(candle.phase) * 1.75 + 15.75;
+            candle.top.position.y = candle.bottom.position.y + 0.8;
+            candle.wick.position.y = candle.bottom.position.y + 1.25;
+        });
 
-    openBookOuter.position.y = Math.sin(Date.now() * 0.0025) * 1.05 + 7.95;
-    openBookInner.position.y = openBookOuter.position.y + 0.25;
-    openBookLight.position.y = openBookOuter.position.y + 2.9;
+        openBookOuter.position.y = Math.sin(Date.now() * 0.0025) * 1.05 + 7.95;
+        openBookInner.position.y = openBookOuter.position.y + 0.25;
+        openBookLight.position.y = openBookOuter.position.y + 2.9;
 
-    wandLight.intensity = Math.sin(Date.now() * 0.0025) * 10 + 15;
-
+        if (light) {
+            wandLight.intensity = Math.sin(Date.now() * 0.0025) * 10 + 15;
+        }
+    }
     controls.update();
 
     renderer.render(scene, camera);

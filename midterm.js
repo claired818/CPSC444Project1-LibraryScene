@@ -16,12 +16,15 @@ document.body.appendChild(renderer.domElement);
 
 const controls = new OrbitControls(camera, renderer.domElement);
 
-const ambientLight = new THREE.AmbientLight(0xffffff, 1);
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
 scene.add(ambientLight);
 
-const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-directionalLight.position.set(0, 20, 20);
-scene.add(directionalLight);
+const spotLight = new THREE.SpotLight(0xeeeedd, 200);
+spotLight.position.set(0, 5, 21);
+spotLight.target.position.set(0, 10, -2.5);
+scene.add(spotLight);
+// const spotLightHelper = new THREE.SpotLightHelper(spotLight);
+// scene.add(spotLightHelper);
 
 const materials = {
     floor: new THREE.MeshPhongMaterial({color: 0x604c39, shininess: 400}),
@@ -378,6 +381,12 @@ openBookInner.receiveShadow = true;
 
 scene.add(openBookInner);
 
+const openBookLight = new THREE.PointLight(0xaa33ff, 100, 4);
+openBookLight.position.set(0, 9, -1);
+scene.add(openBookLight);
+// const bookLightHelper = new THREE.PointLightHelper(openBookLight);
+// scene.add(bookLightHelper);
+
 //Candles
 let xMin = -11;
 let xMax = 11;
@@ -388,12 +397,13 @@ let zMax = 13.5;
 let yMin = 14;
 let yMax = 17.5;
 
-let gapMin = 0.75;
-let gapMax = 2;
+let gapMin = 5;
+let gapMax = 7;
 let gapMid = (gapMax + gapMin) / 2;
 
 let candles = [];
 let z = Math.random() * ((zMin + gapMid) - zMin) + zMin;
+
 while (z <= zMax - gapMax) {
     let x = Math.random() * ((xMin + gapMid) - xMin) + xMin;
     while (x <= Math.random() * (xMax - (xMax - gapMid)) + (xMax - gapMid)) {
@@ -416,9 +426,16 @@ while (z <= zMax - gapMax) {
 
         scene.add(candleTop);
 
+        const wick = new THREE.PointLight(0xff8800, 10, 2.5);
+        wick.position.set(x, currentY + 1.25, currentZ);
+        scene.add(wick);
+        const wickHelper = new THREE.PointLightHelper(wick, 0.1);
+        scene.add(wickHelper);
+        
         candles.push({
             bottom: candleBottom,
             top: candleTop,
+            wick: wick,
             phase: Math.asin((currentY - 15.75) / 1.75)
         });
 
@@ -436,6 +453,12 @@ wand.castShadow = true;
 wand.receiveShadow = true;
 
 scene.add(wand);
+
+const wandLight = new THREE.PointLight(0x2233aa);
+wandLight.position.set(-2.5, 7, 0.5);
+scene.add(wandLight);
+// const wandlighthelper = new THREE.PointLightHelper(wandLight);
+// scene.add(wandlighthelper);
 
 window.addEventListener("resize", () => {
     camera.aspect = window.innerWidth / window.innerHeight;
@@ -487,7 +510,14 @@ function animate() {
         candle.phase += time * speed;
         candle.bottom.position.y = Math.sin(candle.phase) * 1.75 + 15.75;
         candle.top.position.y = candle.bottom.position.y + 0.8;
+        candle.wick.position.y = candle.bottom.position.y + 1.25;
     });
+
+    openBookOuter.position.y = Math.sin(Date.now() * 0.0025) * 1.05 + 7.95;
+    openBookInner.position.y = openBookOuter.position.y + 0.25;
+    openBookLight.position.y = openBookOuter.position.y + 2.9;
+
+    wandLight.intensity = Math.sin(Date.now() * 0.0025) * 10 + 15;
 
     controls.update();
 
